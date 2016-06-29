@@ -1,8 +1,10 @@
 package edu.cmu.pocketsphinx.task;
 
+import java.io.File;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import edu.cmu.pocketsphinx.Config;
 import edu.cmu.pocketsphinx.Decoder;
@@ -87,15 +89,18 @@ public class RecognizerTask implements Runnable {
 	}
 
 	public RecognizerTask() {
-		pocketsphinx.setLogfile("/sdcard/Android/data/zuoshu/pocketsphinx.log");
+		File sdcardDir = Environment.getExternalStorageDirectory();
+		final String workbasePath = sdcardDir.getAbsoluteFile() + File.separator + "PocketSphinx";
+
+		pocketsphinx.setLogfile(workbasePath + File.separator + "pocketsphinx.log");
 		Config c = new Config();
 		/*
 		 * In 2.2 and above we can use getExternalFilesDir() or whatever it's
 		 * called
 		 */
-		c.setString("-hmm", "/sdcard/Android/data/test/hmm/tdt_sc_8k");
-		c.setString("-dict", "/sdcard/Android/data/test/lm/test.dic");
-		c.setString("-lm", "/sdcard/Android/data/test/lm/test.lm");
+		c.setString("-hmm", workbasePath + File.separator + "hmm/tdt_sc_8k");
+		c.setString("-dict", workbasePath + File.separator + "lm/test.dic");
+		c.setString("-lm", workbasePath + File.separator + "lm/test.lm");
 		c.setFloat("-samprate", 8000.0);
 		c.setInt("-maxhmmpf", 2000);
 		c.setInt("-maxwpf", 10);

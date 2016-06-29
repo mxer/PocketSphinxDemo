@@ -1,13 +1,27 @@
 package edu.cmu.pocketsphinx.demo;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+
+import org.apache.commons.io.IOUtils;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
 import edu.cmu.pocketsphinx.listener.RecognitionListener;
@@ -57,13 +71,14 @@ public class PocketSphinxDemo extends Activity implements RecognitionListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		this.rec = new RecognizerTask();
-		this.rec_thread = new Thread(this.rec);
-		// this.listening = false;
-		// Button b = (Button) findViewById(R.id.Button01);
-		// b.setOnTouchListener(this);
+
 		this.performance_text = (TextView) findViewById(R.id.PerformanceText);
 		this.edit_text = (EditText) findViewById(R.id.EditText01);
+
+		initData();
+
+		this.rec = new RecognizerTask();
+		this.rec_thread = new Thread(this.rec);
 		this.rec.setRecognitionListener(this);
 		this.rec_thread.start();
 
@@ -72,6 +87,42 @@ public class PocketSphinxDemo extends Activity implements RecognitionListener {
 
 		ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
 		service.scheduleAtFixedRate(new TimerTask(this.rec), 100, 100, TimeUnit.SECONDS);
+	}
+
+	private void initData() {
+		Context context = getApplicationContext();
+		File sdcardDir = Environment.getExternalStorageDirectory();
+		final String workbasePath = sdcardDir.getAbsoluteFile() + File.separator + "PocketSphinx";
+		File rawFile = new File(workbasePath + File.separator + "raw.zip");
+		if (!rawFile.exists()) {
+			rawFile.getParentFile().mkdirs();
+			InputStream dataIs = null;
+			FileOutputStream outputStream = null;
+			try {
+				dataIs = context.getResources().openRawResource(R.raw.raw);
+				outputStream = new FileOutputStream(rawFile);
+				IOUtils.copy(dataIs, outputStream);
+
+				unzip(rawFile, workbasePath);
+			} catch (Exception e) {
+				Log.e("PocketSphinxDemo", "Exception occurred when copy raw.zip ..", e);
+			} finally {
+				if (dataIs != null) {
+					try {
+						dataIs.close();
+					} catch (IOException e) {
+						Log.e("PocketSphinxDemo", "IOException occurred when copy raw.zip ..", e);
+					}
+				}
+				if (outputStream != null) {
+					try {
+						outputStream.close();
+					} catch (IOException e) {
+						Log.e("PocketSphinxDemo", "IOException occurred when copy raw.zip ..", e);
+					}
+				}
+			}
+		}
 	}
 
 	/** Called when partial results are generated. */
@@ -96,6 +147,29 @@ public class PocketSphinxDemo extends Activity implements RecognitionListener {
 				that.rec_dialog.dismiss();
 			}
 		});
+	}
+
+	private void unzip(File file, String des) throws ZipException, IOException {
+		ZipFile zipFile = new ZipFile(file);
+		try {
+			Enumeration<? extends ZipEntry> entries = zipFile.entries();
+			while (entries.hasMoreElements()) {
+				ZipEntry entry = entries.nextElement();
+				File entryDestination = new File(des, entry.getName());
+				if (entry.isDirectory()) {
+					entryDestination.mkdirs();
+				} else {
+					entryDestination.getParentFile().mkdirs();
+					InputStream in = zipFile.getInputStream(entry);
+					OutputStream out = new FileOutputStream(entryDestination);
+					IOUtils.copy(in, out);
+					IOUtils.closeQuietly(in);
+					out.close();
+				}
+			}
+		} finally {
+			zipFile.close();
+		}
 	}
 
 }

@@ -8,16 +8,13 @@ import java.util.concurrent.TimeUnit;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnTouchListener;
 import android.widget.EditText;
 import android.widget.TextView;
+import edu.cmu.pocketsphinx.listener.RecognitionListener;
 import edu.cmu.pocketsphinx.task.RecognizerTask;
 import edu.cmu.pocketsphinx.task.TimerTask;
 
-public class PocketSphinxDemo extends Activity implements OnTouchListener, RecognitionListener {
+public class PocketSphinxDemo extends Activity implements RecognitionListener {
 	static {
 		System.loadLibrary("pocketsphinx_jni");
 	}
@@ -56,49 +53,6 @@ public class PocketSphinxDemo extends Activity implements OnTouchListener, Recog
 	 */
 	EditText edit_text;
 
-	/**
-	 * Respond to touch events on the Speak button.
-	 * 
-	 * This allows the Speak button to function as a "push and hold" button, by
-	 * triggering the start of recognition when it is first pushed, and the end
-	 * of recognition when it is released.
-	 * 
-	 * @param v
-	 *            View on which this event is called
-	 * @param event
-	 *            Event that was triggered.
-	 */
-	public boolean onTouch(View v, MotionEvent event) {
-		start_date = new Date();
-		this.listening = true;
-		this.rec.start();
-
-		switch (event.getAction()) {
-		case MotionEvent.ACTION_DOWN:
-			start_date = new Date();
-			this.listening = true;
-			this.rec.start();
-			break;
-		// case MotionEvent.ACTION_UP:
-		// Date end_date = new Date();
-		// long nmsec = end_date.getTime() - start_date.getTime();
-		// this.speech_dur = (float)nmsec / 1000;
-		// if (this.listening) {
-		// Log.d(getClass().getName(), "Showing Dialog");
-		// this.rec_dialog = ProgressDialog.show(PocketSphinxDemo.this, "",
-		// "Recognizing speech...", true);
-		// this.rec_dialog.setCancelable(false);
-		// this.listening = false;
-		// }
-		// this.rec.stop();
-		// break;
-		default:
-			;
-		}
-		/* Let the button handle its own state */
-		return false;
-	}
-
 	/** Called when the activity is first created. */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -133,48 +87,6 @@ public class PocketSphinxDemo extends Activity implements OnTouchListener, Recog
 
 	/** Called with full results are generated. */
 	public void onResults(Bundle b) {
-		final String hyp = b.getString("hyp");
-
-		final PocketSphinxDemo that = this;
-		// try {
-		// Thread.sleep(1000l);
-		// } catch (InterruptedException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// this.listening = false;
-		// this.rec.stop();
-		/*
-		 * try { this.listening = false; this.rec.stop(); this.rec.wait(1000);
-		 * this.listening = true; this.rec.start(); } catch
-		 * (InterruptedException e) { // TODO Auto-generated catch block
-		 * e.printStackTrace(); }
-		 */
-		this.edit_text.post(new Runnable() {
-			public void run() {
-
-				if (hyp != null) {
-					that.edit_text.setText(hyp);
-				}
-
-				// Date end_date = new Date();
-				// long nmsec = end_date.getTime() - that.start_date.getTime();
-				// float rec_dur = (float) nmsec / 1000;
-				// try {
-				// Thread.sleep(1000l);
-				// } catch (InterruptedException e) {
-				// // TODO Auto-generated catch block
-				// e.printStackTrace();
-				// }
-				// that.performance_text
-				// .setText(String.format("%.2f seconds %.2f xRT",
-				// that.speech_dur, rec_dur / that.speech_dur));
-				Log.d(getClass().getName(), "Hiding Dialog");
-				// that.rec_dialog.dismiss();
-
-			}
-		});
-
 	}
 
 	public void onError(int err) {

@@ -1,4 +1,4 @@
-package edu.cmu.pocketsphinx.demo;
+package edu.cmu.pocketsphinx.listener;
 
 import android.os.Bundle;
 

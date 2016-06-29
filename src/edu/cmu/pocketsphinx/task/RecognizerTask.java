@@ -8,7 +8,7 @@ import edu.cmu.pocketsphinx.Config;
 import edu.cmu.pocketsphinx.Decoder;
 import edu.cmu.pocketsphinx.Hypothesis;
 import edu.cmu.pocketsphinx.pocketsphinx;
-import edu.cmu.pocketsphinx.demo.RecognitionListener;
+import edu.cmu.pocketsphinx.listener.RecognitionListener;
 
 /**
  * Speech recognition task, which runs in a worker thread.
@@ -187,7 +187,7 @@ public class RecognizerTask implements Runnable {
 							Log.e(getClass().getName(), "zs log Final hypothesis: " + hyp.getHypstr());
 							Log.e(getClass().getName(), ps.getUttid());
 							b.putString("hyp", hyp.getHypstr());
-							this.rl.onResults(b);
+							// this.rl.onResults(b);
 						}
 					}
 					state = State.IDLE;

@@ -189,8 +189,8 @@ public class RecognizerTask implements Runnable {
 							this.rl.onError(-1);
 						} else {
 							Bundle b = new Bundle();
-							Log.e(getClass().getName(), "zs log Final hypothesis: " + hyp.getHypstr());
-							Log.e(getClass().getName(), ps.getUttid());
+							Log.i(getClass().getName(), "zs log Final hypothesis: " + hyp.getHypstr());
+							Log.i(getClass().getName(), ps.getUttid());
 							b.putString("hyp", hyp.getHypstr());
 							// this.rl.onResults(b);
 						}
